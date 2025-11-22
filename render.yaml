@@ -1,0 +1,50 @@
+projects:
+  - name: browser-research-agent
+
+    environments:
+      - name: production
+
+        services:
+          # Backend API service
+          - type: web
+            name: browser-research-agent-backend
+            runtime: docker
+            region: oregon
+            plan: starter
+            dockerfilePath: ./backend/Dockerfile
+            dockerContext: ./
+            healthCheckPath: /health
+            envVars:
+              - key: NODE_ENV
+                value: production
+              - key: PORT
+                value: 3001
+              - key: ALLOWED_ORIGINS
+                fromService:
+                  type: web
+                  name: browser-research-agent-frontend
+                  envVarKey: RENDER_EXTERNAL_URL
+              - key: BROWSERBASE_API_KEY
+                sync: false
+              - key: BROWSERBASE_PROJECT_ID
+                sync: false
+              - key: ANTHROPIC_API_KEY
+                sync: false
+              - key: ANTHROPIC_MODEL
+                value: claude-3-5-sonnet-20241022
+
+          # Frontend UI service
+          - type: web
+            name: browser-research-agent-frontend
+            runtime: docker
+            region: oregon
+            plan: starter
+            dockerfilePath: ./frontend/Dockerfile
+            dockerContext: ./
+            envVars:
+              - key: NEXT_PUBLIC_API_URL
+                fromService:
+                  type: web
+                  name: browser-research-agent-backend
+                  envVarKey: RENDER_EXTERNAL_URL
+
