@@ -10,7 +10,25 @@ import { WebSocketClient } from '@/lib/websocket';
 import { Message, StatusUpdate, Summary, ChatResponse } from '@/types';
 import { Sparkles } from 'lucide-react';
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3001';
+// Convert API URL to WebSocket URL
+const getWebSocketUrl = () => {
+  const wsUrl = process.env.NEXT_PUBLIC_WS_URL;
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  
+  if (wsUrl) {
+    return wsUrl;
+  }
+  
+  if (apiUrl) {
+    return apiUrl.replace(/^https?:\/\//, (match) => 
+      match === 'https://' ? 'wss://' : 'ws://'
+    );
+  }
+  
+  return 'ws://localhost:3001';
+};
+
+const WS_URL = getWebSocketUrl();
 
 export function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
