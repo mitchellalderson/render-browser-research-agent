@@ -5,8 +5,8 @@ FROM node:20-alpine AS base
 FROM base AS deps
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package files (relative to docker context root)
+COPY backend/package*.json ./
 RUN npm ci
 
 # Builder stage
@@ -14,7 +14,7 @@ FROM base AS builder
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY backend/ .
 
 # Build TypeScript
 RUN npm run build
